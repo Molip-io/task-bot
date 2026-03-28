@@ -13,7 +13,7 @@ export const MEMBER_MAP: Record<string, string> = {
 export const TEAM_NAMES = ["기획", "개발"];
 
 // 프로젝트명 목록 (Notion DB의 Project select 값들)
-export const PROJECT_NAMES = ["피자레디"];
+export const PROJECT_NAMES = ["피자레디", "포지 앤 포춘", "Wool Arrow", "My Burger Diner"];
 
 export function isProjectName(text: string): boolean {
   return PROJECT_NAMES.includes(text);
