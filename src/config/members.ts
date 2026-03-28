@@ -13,7 +13,8 @@ export const MEMBER_MAP: Record<string, string> = {
 export const TEAM_NAMES = ["기획", "개발"];
 
 // 닉네임에서 표시명 추출: "[박소형]모모" → "모모"
-export function extractNickname(displayName: string): string {
+export function extractNickname(displayName: string | undefined): string {
+  if (!displayName) return "(알 수 없음)";
   const match = displayName.match(/\](.+)$/);
   return match ? match[1] : displayName;
 }
