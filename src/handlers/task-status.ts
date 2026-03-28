@@ -1,5 +1,5 @@
 import type { QueryParams } from "../types/notion";
-import { findMemberUuid, isTeamName } from "../config/members";
+import { findMemberUuid, isTeamName, isProjectName } from "../config/members";
 import { queryNotionTasks } from "../services/notion";
 import { formatTaskMessage } from "../services/formatter";
 import { sendResponseUrl } from "../services/slack";
@@ -10,6 +10,7 @@ function parseCommand(text: string): QueryParams {
   if (!trimmed) return { mode: "all" };
   if (trimmed === "지연") return { mode: "overdue" };
   if (isTeamName(trimmed)) return { mode: "team", teamName: trimmed };
+  if (isProjectName(trimmed)) return { mode: "project", projectName: trimmed };
 
   const uuid = findMemberUuid(trimmed);
   if (uuid) return { mode: "person", personUuid: uuid, personName: trimmed };
@@ -25,7 +26,7 @@ export async function handleTaskStatus(
   const params = parseCommand(text);
 
   // 이름으로 입력했는데 매핑이 없는 경우
-  if (text.trim() && params.mode === "all" && text.trim() !== "지연" && !isTeamName(text.trim())) {
+  if (text.trim() && params.mode === "all" && text.trim() !== "지연" && !isTeamName(text.trim()) && !isProjectName(text.trim())) {
     await sendResponseUrl(
       responseUrl,
       responseType,

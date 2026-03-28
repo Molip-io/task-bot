@@ -44,11 +44,12 @@ export interface TaskItem {
   isOverdue: boolean;
 }
 
-export type QueryMode = "all" | "team" | "person" | "overdue";
+export type QueryMode = "all" | "team" | "person" | "overdue" | "project";
 
 export interface QueryParams {
   mode: QueryMode;
   teamName?: string;
   personUuid?: string;
   personName?: string;
+  projectName?: string;
 }

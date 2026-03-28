@@ -69,6 +69,8 @@ function buildHeader(params: QueryParams): string {
   switch (params.mode) {
     case "team":
       return `📋 [${params.teamName}팀] 작업 현황 — ${dateStr} 기준`;
+    case "project":
+      return `📋 [${params.projectName}] 프로젝트 작업 현황 — ${dateStr} 기준`;
     case "person":
       return `📋 [${params.personName}] 작업 현황 — ${dateStr} 기준`;
     case "overdue":

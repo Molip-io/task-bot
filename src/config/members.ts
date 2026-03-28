@@ -12,6 +12,13 @@ export const MEMBER_MAP: Record<string, string> = {
 // 팀명 목록
 export const TEAM_NAMES = ["기획", "개발"];
 
+// 프로젝트명 목록 (Notion DB의 Project select 값들)
+export const PROJECT_NAMES = ["피자레디"];
+
+export function isProjectName(text: string): boolean {
+  return PROJECT_NAMES.includes(text);
+}
+
 // 닉네임에서 표시명 추출: "[박소형]모모" → "모모"
 export function extractNickname(displayName: string | undefined): string {
   if (!displayName) return "(알 수 없음)";

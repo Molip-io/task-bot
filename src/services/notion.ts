@@ -22,6 +22,12 @@ function buildFilter(params: QueryParams): Record<string, unknown> {
           and: [notCompleted, { property: "담당자", people: { contains: params.personUuid } }],
         },
       };
+    case "project":
+      return {
+        filter: {
+          and: [notCompleted, { property: "Project", select: { equals: params.projectName } }],
+        },
+      };
     default:
       return { filter: notCompleted };
   }
