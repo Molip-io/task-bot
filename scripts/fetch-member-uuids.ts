@@ -33,7 +33,8 @@ interface NotionResponse {
   next_cursor: string | null;
 }
 
-function extractNickname(displayName: string): string {
+function extractNickname(displayName: string | undefined): string {
+  if (!displayName) return "(알 수 없음)";
   const match = displayName.match(/\](.+)$/);
   return match ? match[1] : displayName;
 }
