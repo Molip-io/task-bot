@@ -1,5 +1,5 @@
 import type { QueryParams } from "../types/notion";
-import { findMemberUuid, isTeamName, isProjectName } from "../config/members";
+import { findMemberUuid, isTeamName, isProjectName, findProjectName } from "../config/members";
 import { queryNotionTasks } from "../services/notion";
 import { formatTaskMessage } from "../services/formatter";
 import { sendResponseUrl } from "../services/slack";
@@ -10,7 +10,8 @@ function parseCommand(text: string): QueryParams {
   if (!trimmed) return { mode: "all" };
   if (trimmed === "지연") return { mode: "overdue" };
   if (isTeamName(trimmed)) return { mode: "team", teamName: trimmed };
-  if (isProjectName(trimmed)) return { mode: "project", projectName: trimmed };
+  const projectName = findProjectName(trimmed);
+  if (projectName) return { mode: "project", projectName };
 
   const uuid = findMemberUuid(trimmed);
   if (uuid) return { mode: "person", personUuid: uuid, personName: trimmed };
