@@ -1,7 +1,7 @@
 # task-bot
 
 Slack 슬래시 커맨드(`/작업현황`)로 Notion "팀 작업 현황" DB를 조회하는 봇.
-Cloudflare Workers + `slack-cloudflare-workers` 기반.
+Vercel Serverless Functions 기반.
 
 ## 사용법
 
@@ -20,19 +20,22 @@ Cloudflare Workers + `slack-cloudflare-workers` 기반.
 npm install
 ```
 
-### 2. 시크릿 설정
+### 2. Vercel 배포
 
 ```bash
-wrangler secret put SLACK_SIGNING_SECRET
-wrangler secret put SLACK_BOT_TOKEN
-wrangler secret put NOTION_API_TOKEN
+npm i -g vercel
+vercel login
+vercel
 ```
 
-### 3. wrangler.toml에 Notion DB ID 입력
+### 3. 환경변수 설정 (Vercel 대시보드 또는 CLI)
 
-```toml
-[vars]
-NOTION_DATABASE_ID = "<32자리 DB ID>"
+```bash
+vercel env add SLACK_SIGNING_SECRET
+vercel env add SLACK_BOT_TOKEN
+vercel env add NOTION_API_TOKEN
+vercel env add NOTION_DATABASE_ID
+vercel env add RESPONSE_TYPE    # "in_channel" 또는 "ephemeral"
 ```
 
 ### 4. 팀원 UUID 매핑
@@ -41,13 +44,12 @@ NOTION_DATABASE_ID = "<32자리 DB ID>"
 NOTION_API_TOKEN=secret_xxx NOTION_DATABASE_ID=xxx npm run fetch-members
 ```
 
-출력된 매핑을 `src/config/members.ts`의 `MEMBER_MAP`에 붙여넣기.
-
-### 5. 배포
-
+출력된 매핑을 `src/config/members.ts`의 `MEMBER_MAP`에 붙여넣기 후 재배포:
 ```bash
-npm run deploy
+vercel --prod
 ```
 
-배포된 URL을 Slack App의 슬래시 커맨드 Request URL에 등록:
-`https://molip-task-bot.<account>.workers.dev/slack/events`
+### 5. Slack Request URL 등록
+
+배포 URL을 Slack App의 슬래시 커맨드 Request URL에 입력:
+`https://<프로젝트명>.vercel.app/api/slack/events`

@@ -1,11 +1,3 @@
-export interface Env {
-  SLACK_SIGNING_SECRET: string;
-  SLACK_BOT_TOKEN: string;
-  NOTION_API_TOKEN: string;
-  NOTION_DATABASE_ID: string;
-  RESPONSE_TYPE: string;
-}
-
 export interface NotionPerson {
   id: string;
   name: string;

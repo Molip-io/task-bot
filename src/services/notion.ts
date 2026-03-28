@@ -1,42 +1,35 @@
-import type { Env, NotionPage, NotionQueryResponse, TaskItem, QueryParams } from "../types/notion";
+import type { NotionPage, NotionQueryResponse, TaskItem, QueryParams } from "../types/notion";
 import { extractNickname } from "../config/members";
 
 const NOTION_API_BASE = "https://api.notion.com/v1";
 
-function buildFilter(params: QueryParams, today: string): Record<string, unknown> {
+function buildFilter(params: QueryParams): Record<string, unknown> {
   const notCompleted = {
     property: "Status",
     status: { does_not_equal: "완료" },
   };
 
   switch (params.mode) {
-    case "all":
-      return { filter: notCompleted };
-
     case "team":
       return {
         filter: {
           and: [notCompleted, { property: "팀", select: { equals: params.teamName } }],
         },
       };
-
     case "person":
       return {
         filter: {
           and: [notCompleted, { property: "담당자", people: { contains: params.personUuid } }],
         },
       };
-
-    case "overdue":
-      // date range 필터는 start 기준일 수 있으므로, 코드에서 end 기준 재필터링
+    default:
       return { filter: notCompleted };
   }
 }
 
-async function queryDatabase(
-  env: Env,
-  body: Record<string, unknown>,
-): Promise<NotionPage[]> {
+async function queryDatabase(body: Record<string, unknown>): Promise<NotionPage[]> {
+  const token = process.env.NOTION_API_TOKEN!;
+  const dbId = process.env.NOTION_DATABASE_ID!;
   const pages: NotionPage[] = [];
   let cursor: string | undefined;
 
@@ -47,10 +40,10 @@ async function queryDatabase(
       ...(cursor ? { start_cursor: cursor } : {}),
     };
 
-    const res = await fetch(`${NOTION_API_BASE}/databases/${env.NOTION_DATABASE_ID}/query`, {
+    const res = await fetch(`${NOTION_API_BASE}/databases/${dbId}/query`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${env.NOTION_API_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         "Notion-Version": "2022-06-28",
         "Content-Type": "application/json",
       },
@@ -87,19 +80,18 @@ function parseTaskItem(page: NotionPage, today: string): TaskItem {
   return { title, status, team, assignees, priority, sprint, deadline, project, isOverdue };
 }
 
-export async function queryNotionTasks(env: Env, params: QueryParams): Promise<TaskItem[]> {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const filterBody = buildFilter(params, today);
+export async function queryNotionTasks(params: QueryParams): Promise<TaskItem[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const filterBody = buildFilter(params);
 
   const sortedBody = {
     ...filterBody,
     sorts: [{ property: "우선순위", direction: "ascending" }],
   };
 
-  const pages = await queryDatabase(env, sortedBody);
+  const pages = await queryDatabase(sortedBody);
   const tasks = pages.map((page) => parseTaskItem(page, today));
 
-  // 지연 모드일 때는 코드에서 end(마감일) 기준 필터링
   if (params.mode === "overdue") {
     return tasks.filter((t) => t.isOverdue);
   }
